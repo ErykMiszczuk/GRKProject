@@ -1,0 +1,5 @@
+*.dll
+*.txt
+Debug
+\Debug
+.vs
