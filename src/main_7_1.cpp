@@ -229,7 +229,9 @@ void init()
 	programTexture = shaderLoader.CreateProgram("shaders/shader_tex.vert", "shaders/shader_tex.frag");
 	sphereModel = obj::loadModelFromFile("models/ryba.obj");
 	shipModel = obj::loadModelFromFile("models/spaceship.obj");
-	textureAsteroid = Core::LoadTexture("textures/rybauvmap.png");
+	//textureAsteroid = Core::LoadTexture("textures/rybauvmap.png");
+	textureAsteroid = Core::GenerateTexture();
+
 	for (int i = 0; i < 10; i++) {
 		wektoryPlanet[i] = glm::ballRand(4.0f);
 	}
