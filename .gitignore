@@ -1,5 +1,8 @@
+Debug
+models
+textures
+
+.vs
+
 *.dll
 *.txt
-Debug
-\Debug
-.vs
