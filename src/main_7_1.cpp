@@ -37,6 +37,22 @@ glm::vec3 wektoryPlanet[10];
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
 
+unsigned int framebuffer;
+unsigned int textureColorbuffer;
+unsigned int rbo;
+unsigned int quadVAO, quadVBO;
+
+float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+						 // positions   // texCoords
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	1.0f, -1.0f,  1.0f, 0.0f,
+
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	1.0f, -1.0f,  1.0f, 0.0f,
+	1.0f,  1.0f,  1.0f, 1.0f
+};
+
 float poprzedniaPozycjaMyszki[2] = { 0,0 };
 float roznicaMyszki[2] = { 0,0 };
 
@@ -128,6 +144,16 @@ void drawObjectTexture(obj::Model * model, glm::mat4 modelMatrix, GLuint texture
 }
 void renderScene()
 {
+
+
+	//// first pass
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+	//glEnable(GL_DEPTH_TEST);
+
+
+
 	// Aktualizacja macierzy widoku i rzutowania
 	cameraMatrix = createCameraMatrix();
 	perspectiveMatrix = Core::createPerspectiveMatrix();
@@ -139,6 +165,16 @@ void renderScene()
 
 	glm::mat4 shipInitialTransformation = glm::translate(glm::vec3(0, -0.25f, 0)) * glm::rotate(glm::radians(180.0f), glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(0.25f));
 	glm::mat4 shipModelMatrix = glm::translate(cameraPos + cameraDir * 0.5f) * shipRotation * shipInitialTransformation;
+
+
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+	//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
+
+
+
+
 	drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(0.6f));
 
 	drawObjectTexture(&sphereModel, glm::translate(glm::vec3(0, 0, 0)), textureAsteroid);
@@ -147,6 +183,17 @@ void renderScene()
 		drawObjectTexture(&sphereModel, glm::translate(wektoryPlanet[i]), textureAsteroid);
 	}
 
+
+
+	//screenShader.use();
+	//glBindVertexArray(quadVAO);
+	//glDisable(GL_DEPTH_TEST);
+	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+
+
 	glutSwapBuffers();
 }
 
@@ -154,6 +201,30 @@ void init()
 {
 	srand(time(0));
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEBUG_OUTPUT);
+
+
+
+
+
+
+	//glGenVertexArrays(1, &quadVAO);
+	//glGenBuffers(1, &quadVBO);
+	//glBindVertexArray(quadVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
+
+
+
+
+
 	programColor = shaderLoader.CreateProgram("shaders/shader_color.vert", "shaders/shader_color.frag");
 	programTexture = shaderLoader.CreateProgram("shaders/shader_tex.vert", "shaders/shader_tex.frag");
 	sphereModel = obj::loadModelFromFile("models/ryba.obj");
@@ -163,26 +234,30 @@ void init()
 		wektoryPlanet[i] = glm::ballRand(4.0f);
 	}
 
-	unsigned int framebuffer;
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	// create a color attachment texture
-	unsigned int textureColorbuffer;
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-	// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-																								  // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glGenFramebuffers(1, &framebuffer);
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//// create a color attachment texture
+	//glGenTextures(1, &textureColorbuffer);
+	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	//// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+	//glGenRenderbuffers(1, &rbo);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
+	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+	//																							  // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+
+	//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+	//	std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	//}
+	//else {
+	//	std::cout << "RenderBuffer Complete \n";
+	//}
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
