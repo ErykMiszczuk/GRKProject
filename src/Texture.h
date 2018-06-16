@@ -12,7 +12,7 @@ namespace Core
 	// programID - identyfikator aktualnego programu karty graficznej
 	// textureUnit - indeks jednostki teksturujacej - liczba od 0 do 7. Jezeli uzywa sie wielu tekstur w jednym shaderze, to kazda z nich nalezy powiazac z inna jednostka.
 	void SetActiveTexture(GLuint textureID, const char * shaderVariableName, GLuint programID, int textureUnit);
-	GLuint GenerateTexture();
+	GLuint GenerateTexture(int var_r, int var_g, int var_b, int var_a);
 	float perlin(float x, float y);
 	float interpolatedNoise(float x, float y);
 	float SmoothedNoise1(float x, float y);

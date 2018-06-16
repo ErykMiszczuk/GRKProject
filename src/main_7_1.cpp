@@ -17,7 +17,8 @@ GLuint programTexture;
 Core::Shader_Loader shaderLoader;
 
 obj::Model shipModel;
-obj::Model sphereModel;
+obj::Model fishModel;
+obj::Model bottomPlaneModel;
 
 glm::vec3 cameraPos = glm::vec3(0, 0, 5);
 glm::vec3 cameraDir; // Wektor "do przodu" kamery
@@ -30,12 +31,16 @@ glm::vec3 lightDir = glm::normalize(glm::vec3(1.0f, -0.9f, -1.0f));
 
 glm::quat rotation = glm::quat(1, 0, 0, 0);
 
-GLuint textureAsteroid;
+GLuint textureFish;
+GLuint textureShip;
+GLuint textureBottomPlane;
+GLuint textureSink;
 
-glm::vec3 wektoryPlanet[10];
+glm::vec3 fishVectors[10];
 
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
+int NUM_FISH = 10;
 
 unsigned int framebuffer;
 unsigned int textureColorbuffer;
@@ -175,12 +180,61 @@ void renderScene()
 
 
 
-	drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(0.6f));
+	//drawObjectColor(&shipModel, shipModelMatrix, glm::vec3(0.6f));
 
-	drawObjectTexture(&sphereModel, glm::translate(glm::vec3(0, 0, 0)), textureAsteroid);
+	drawObjectTexture(&shipModel, shipModelMatrix, textureShip);
 
+	glm::mat4 sink = glm::translate(glm::vec3(0, -2.5f, 0)) * glm::rotate(glm::radians(100.0f), glm::vec3(1, 1, 0)) * glm::scale(glm::vec3(2.0f));
+
+	drawObjectTexture(&shipModel, sink, textureSink);
+
+	int iterm = -108;
+	int loopi = 0;
+	for (loopi = 0; loopi < 3; loopi++) {
+		drawObjectTexture(&bottomPlaneModel, glm::translate(glm::vec3(-108, -5, iterm)), textureBottomPlane);
+		drawObjectTexture(&bottomPlaneModel, glm::translate(glm::vec3(0, -5, iterm)), textureBottomPlane);
+		drawObjectTexture(&bottomPlaneModel, glm::translate(glm::vec3(108, -5, iterm)), textureBottomPlane);
+		iterm += 108;
+	}
+
+	//drawObjectTexture(&bottomPlaneModel, glm::translate(glm::vec3(0, -15, 0)), textureBottomPlane);
+
+	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 	for (int i = 0; i < 10; i++) {
-		drawObjectTexture(&sphereModel, glm::translate(wektoryPlanet[i]), textureAsteroid);
+
+		glm::mat4 translationToRotiationOrigin = glm::translate(glm::mat4(), glm::vec3(0.f, 0.f, 0.0f));
+
+
+		glm::mat4 rotation =
+		{
+			cos(time),0,sin(time),0,
+			0,1,0,0,
+			-sin(time),0,cos(time),0,
+			0,0,0,1
+		};
+
+
+
+		/*glm::mat4 rotation =
+		{
+			sin(time),0,0,0,
+			0,1,0,0,
+			0,0,cos(time),0,
+			0,0,0,1
+		};*/
+
+
+
+		glm::vec3 neg;
+		neg.x = -fishVectors[i].x;
+		neg.y = -fishVectors[i].y;
+		neg.z = fishVectors[i].z;
+
+
+		glm::mat4 aft = translationToRotiationOrigin * rotation * glm::translate(neg);
+
+
+		drawObjectTexture(&fishModel, aft, textureFish);
 	}
 
 
@@ -227,13 +281,20 @@ void init()
 
 	programColor = shaderLoader.CreateProgram("shaders/shader_color.vert", "shaders/shader_color.frag");
 	programTexture = shaderLoader.CreateProgram("shaders/shader_tex.vert", "shaders/shader_tex.frag");
-	sphereModel = obj::loadModelFromFile("models/ryba.obj");
-	shipModel = obj::loadModelFromFile("models/spaceship.obj");
-	//textureAsteroid = Core::LoadTexture("textures/rybauvmap.png");
-	textureAsteroid = Core::GenerateTexture();
+	fishModel = obj::loadModelFromFile("models/ryba.obj");
+	shipModel = obj::loadModelFromFile("models/OrcaSub1.obj");
+	textureShip = Core::LoadTexture("textures/orca_sub_red.png");
+	textureSink = Core::LoadTexture("textures/orca_sub_sink.png");
+	//textureShip = Core::GenerateTexture();
+	textureFish = Core::LoadTexture("textures/rybauvmap.png");
+	//textureAsteroid = Core::GenerateTexture();
+	bottomPlaneModel = obj::loadModelFromFile("models/bottom1.obj");
+	textureBottomPlane = Core::GenerateTexture(100, 100, 30, 1);
 
+	static const float astRadius = 15;
 	for (int i = 0; i < 10; i++) {
-		wektoryPlanet[i] = glm::ballRand(4.0f);
+		float angle = (float(i))*(2 * glm::pi<float>() / NUM_FISH);
+		fishVectors[i] = glm::vec3(cosf(angle), 0.0f, sinf(angle)) * astRadius;
 	}
 
 

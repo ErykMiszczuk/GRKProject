@@ -33,7 +33,7 @@ GLuint Core::LoadTexture( const char * filepath )
 	return id;
 }
 
-GLuint Core::GenerateTexture()
+GLuint Core::GenerateTexture(int var_r, int var_g, int var_b, int var_a)
 {
 
 
@@ -95,10 +95,10 @@ GLuint Core::GenerateTexture()
 			perl = perlin(i, j) * 10000;
 			perl = perl / 4;
 
-			decoded.push_back((char)perl / 64);
-			decoded.push_back((char)perl);
-			decoded.push_back((char)perl / 64);
-			decoded.push_back(0);
+			decoded.push_back((char)perl / var_r);
+			decoded.push_back((char)perl / var_g);
+			decoded.push_back((char)perl / var_b);
+			decoded.push_back((char)perl / var_a);
 
 			//texData[i][j][0] = (char)perl / 64;
 			//texData[i][j][1] = (char)perl;
