@@ -20,7 +20,7 @@ obj::Model shipModel;
 obj::Model fishModel;
 obj::Model bottomPlaneModel;
 
-glm::vec3 cameraPos = glm::vec3(0, 0, 5);
+glm::vec3 cameraPos = glm::vec3(-5, 10, 20);
 glm::vec3 cameraDir; // Wektor "do przodu" kamery
 glm::vec3 cameraSide; // Wektor "w bok" kamery
 float cameraAngle = 0;
@@ -38,8 +38,8 @@ GLuint textureSink;
 
 glm::vec3 fishVectors[10];
 
-const unsigned int SCR_WIDTH = 640;
-const unsigned int SCR_HEIGHT = 480;
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
 int NUM_FISH = 10;
 
 unsigned int framebuffer;
@@ -63,6 +63,7 @@ float roznicaMyszki[2] = { 0,0 };
 
 void keyboard(unsigned char key, int x, int y)
 {
+	float nowaPozycja[2] = { x, y };
 
 	float angleSpeed = 0.1f;
 	float moveSpeed = 0.1f;
@@ -82,14 +83,20 @@ void mouse(int x, int y)
 	float nowaPozycja[2] = { x, y };
 	roznicaMyszki[0] = poprzedniaPozycjaMyszki[0] - nowaPozycja[0];
 	roznicaMyszki[1] = poprzedniaPozycjaMyszki[1] - nowaPozycja[1];
+
+	if (glm::length(glm::vec2(roznicaMyszki[x], roznicaMyszki[y])) > 2.f) {
+		poprzedniaPozycjaMyszki[0] = nowaPozycja[0];
+		poprzedniaPozycjaMyszki[1] = nowaPozycja[1];
+		return;
+	}
 	poprzedniaPozycjaMyszki[0] = nowaPozycja[0];
 	poprzedniaPozycjaMyszki[1] = nowaPozycja[1];
 }
 
 glm::mat4 createCameraMatrix()
 {
-	glm::quat obrotY = glm::angleAxis(roznicaMyszki[0] * 0.01f, glm::vec3(0, 1, 0));
-	glm::quat obrotX = glm::angleAxis(roznicaMyszki[1] * 0.01f, glm::vec3(1, 0, 0));
+	glm::quat obrotY = glm::angleAxis(-roznicaMyszki[0] * 0.005f, glm::vec3(0, 1, 0));
+	glm::quat obrotX = glm::angleAxis(-roznicaMyszki[1] * 0.005f, glm::vec3(1, 0, 0));
 
 	glm::quat rotationChange = obrotX * obrotY;
 
@@ -217,10 +224,10 @@ void renderScene()
 
 		/*glm::mat4 rotation =
 		{
-			sin(time),0,0,0,
-			0,1,0,0,
-			0,0,cos(time),0,
-			0,0,0,1
+		sin(time),0,0,0,
+		0,1,0,0,
+		0,0,cos(time),0,
+		0,0,0,1
 		};*/
 
 
