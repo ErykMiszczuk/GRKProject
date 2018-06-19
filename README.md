@@ -16,3 +16,5 @@ Folder `models` zawiera pliki modeli które są wykorzystywane w scenie, w forma
 Folder `src` zawiera pliki źródłowe programu.   
 Folder `dependencies` zawiera zależności potrzebne do skompilowania programu.   
 Folder `shaders` zawiera shadery, polecenia dla karty graficznej odnośnie manipulacji pikseli.   
+
+### Modele i tekstury nie są zawarte w repozytorium.
